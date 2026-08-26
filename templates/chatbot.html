@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>FastAPI Chatbot</title></head>
+<body>
+  <h1>FastAPI Chatbot</h1>
+  {% if user_input %}
+    <p><strong>You:</strong> {{ user_input }}</p>
+    <p><strong>Bot:</strong> {{ bot_reply }}</p>
+  {% endif %}
+  <form action="/chat" method="post">
+    <input type="text" name="user_input" required>
+    <button type="submit">Send</button>
+  </form>
+</body>
+</html>

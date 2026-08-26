@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Resume Analyzer</title>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resume Analyzer</h1>
+        <form method="POST" action="/resume-analyzer" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".pdf,.doc,.docx,.txt" required>
+            <button type="submit">Analyze Resume</button>
+        </form>
+
+        {% if analysis %}
+        <div class="output">
+            <h2>Analysis Result:</h2>
+            <p>{{ result_text }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>
