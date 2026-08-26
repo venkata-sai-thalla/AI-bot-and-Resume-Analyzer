@@ -13,14 +13,16 @@ import os
 import requests
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 app = FastAPI()
 
 OPENAI_APIKEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_URL = os.getenv("OPENAI_URL", "")
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-GEMINI_URL = os.getenv("GEMINI_URL", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+
 
 
 # DATABASE
@@ -38,8 +40,8 @@ DATABASES = {
 templates=Jinja2Templates(directory="templates")
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello World"}
+def read_root(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
 
 chat_history: List[dict]=[]
 
@@ -62,11 +64,12 @@ def chat(request: Request, user_input: str = Form(...)):
         }]
     }
     try:
-        response = requests.post(GEMINI_URL, json=payload).json()
+        response = requests.post(GEMINI_URL, json=payload, timeout=30).json()
         if "candidates" in response and response["candidates"]:
             bot_reply = response["candidates"][0]["content"]["parts"][0]["text"]
         else:
-            bot_reply = "Error: Unexpected API response"
+            error_message = response.get("error", {}).get("message", "Unexpected API response")
+            bot_reply = f"Error: {error_message}"
             print("Gemini API Error Response:", response)
     except Exception as e:
         bot_reply = f"Error: {str(e)}"
@@ -143,3 +146,4 @@ def resume_form(request: Request):
 # @app.post("/openai/prompt")
 # def gemini_prompt():
 #     return {"message": "OpenAI Prompt"}
+
